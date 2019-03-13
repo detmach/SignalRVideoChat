@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "provider": "unpkg",
+      "library": "@aspnet/signalr@1.1.2",
+      "destination": "wwwroot/lib/signalr/"
+    },
+    {
+      "library": "AlertifyJS@1.11.2",
+      "destination": "wwwroot/lib/AlertifyJS/"
+    },
+    {
+      "provider": "unpkg",
+      "library": "js-model@1.6.2",
+      "destination": "wwwroot/lib/js-model",
+      "files": [
+        "build/model.js",
+        "build/stat.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+﻿@{
+    ViewData["Title"] = "Sohbet";
+}
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <ul class="list-group ct">
+                <li class="list-group-item active">Kullanıcılar</li>
+            </ul>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-footer"><h3>Sohbet Penceresi</h3></div>
+                <div class="card-body sohbet" style="overflow-y: auto;">
+
+                </div>
+                <div class="card-footer">
+                    <div class="input-group mb-3">
+                        
+                        <textarea id="txtmesaj" name="" class="form-control type_msg" placeholder="Type your message..."></textarea>
+                        <div class="input-group-append" id="gonder">
+                            <span class="input-group-text send_btn"><i class="fas fa-location-arrow"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+@*<div class="container-fluid h-100 mw-100 mb-5">
+    <div class="row justify-content-center h-100">
+        <div class="col-md-4 col-xl-3 chat">
+            <div class="card mb-sm-3 mb-md-0 contacts_card">
+                <div class="card-header">
+                    <div class="input-group">
+                        <input type="text" placeholder="Search..." name="" class="form-control search">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text search_btn"><i class="fas fa-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body contacts_body">
+                    <ui class="contacts">
+
+                    </ui>
+                </div>
+                <div class="card-footer"></div>
+            </div>
+        </div>
+        <div class="col-md-8 col-xl-6 chat">
+            <div class="card">
+                <div class="card-header msg_head">
+                    <div class="d-flex bd-highlight">
+                    </div>
+                </div>
+                <div class="sohbet card-body msg_card_body">
+                   
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <div class="input-group-append">
+                            <span class="input-group-text attach_btn"><i class="fas fa-paperclip"></i></span>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+<script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+<!-- JavaScript -->
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/alertify.min.js"></script>
+<!-- CSS -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/alertify.min.css" />
+<!-- Bootstrap theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/themes/bootstrap.min.css" />
+
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/popo")
+        .build();
+    async function start() {
+        try {
+            await connection.start();
+            console.log("Bağlandı");
+            connection.invoke("Online", localStorage.getItem("user")).catch(function (err) {
+                return console.error(err.toString());
+            });
+        } catch (err) {
+            console.log(err);
+            setTimeout(() => start(), 5000);
+        }
+    };
+    connection.onclose(async () => {
+        await start();
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        const user = function () {
+            if (localStorage.getItem("user") == undefined)
+                alertify.prompt("Adın Ne?", '', 'Misafir' + Math.floor((Math.random() * 10000) + 1), function (e, username) {
+                    if (e == false || username == '') {
+                        username = 'Misafir' + Math.floor((Math.random() * 10000) + 1);
+                        alertify.success('Sana Bu Kullanıcıyı Atadık. Hayırlı Olsun ' + username);
+                    }
+                    localStorage.setItem("user", username);
+                    start();
+                }, '');
+            else {
+                start();
+            }
+
+        }
+        const yollagelsin = function () {
+            if ($("#txtmesaj").val() === "" && $("#txtmesaj").val() == undefined) 
+                return;
+            connection.invoke("KanalMesaj", $("#txtmesaj").val()).catch(function (err) {
+                return console.error(err.toString());
+            });
+            $("#txtmesaj").val("");
+        }
+        user();
+        connection.on("Online", function (online) {
+            $(".ct").html("");
+            $(".ct").html("<li class='list-group-item active'>Kullanıcılar</li>");
+            //
+            online.forEach(function (e) {
+                $(".ct").append("<li class='list-group-item d-flex justify-content-between align-items-center'>" + e.value + "</li>");
+            });
+        });
+        connection.on("KanalMesaj", function (user, mesaj,tarih) {
+            if (user === localStorage.getItem("user")) {
+                $("div .sohbet").append("<div class='d-flex justify-content-end shadow p-2 mb-3 bg-white rounded'><div class='msg_cotainer_send text-right'><strong class='text-left'>" + user + "<br /></strong>" + mesaj + "<br /><span class='msg_time_send'>" + tarih + "</span></div></div>")
+                
+            }
+            else {
+                $("div .sohbet").append("<div class='d-flex justify-content-start shadow p-2 mb-3 bg-white rounded'><div class='msg_cotainer'><strong>" + user + "<br /></strong>" + mesaj + "<br /><span class='msg_time'>"+tarih+"</span></div></div>")
+            }
+             $('.sohbet').animate({
+        scrollTop: $('.sohbet').get(0).scrollHeight
+    }, 2000);
+        });
+        $("#txtmesaj").keypress(function (e) {
+            if (e.which == 13) {
+                yollagelsin();
+                e.preventDefault();
+            }
+        });
+        $(document).on('click', '#gonder', function () {
+            yollagelsin();
+        });
+    });
+
+</script>
+}

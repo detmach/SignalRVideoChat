@@ -1,0 +1,61 @@
+﻿
+@{
+    ViewData["Title"] = "Chat";
+}
+
+<!-- App Area -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>WebRTC Video Caller</h3>
+            <p>You are <span data-username></span></p>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <!-- Side Bar -->
+        <div class="span3">
+            <!-- In Call Actions -->
+            <div class="well actions">
+                <div class="status" data-status=""></div>
+                <button class="btn btn-danger hangup">Ara</button>
+            </div>
+            <!-- User List -->
+            <div class="well user-list">
+                <ul>
+                    <li class="nav-header">Online Users <small data-kackisi=""></small></li>
+                </ul>
+                <ul class="nav nav-list user-list">
+                    <li class='Users' data-listConnectionId=''><a href='#'><div class='Username' data-listUsername=''></div><div class='helper' data-liststatus=''></div></a></li>
+
+                </ul>
+            </div>
+        </div>
+        <!-- Videos -->
+        <div class="span9">
+            <div class="row-fluid">
+                <div class="span6">
+                    <h4>You</h4>
+                    <video class="video mine cool-background" autoplay="autoplay"></video>
+                </div>
+                <div class="span6">
+                    <h4>Partner</h4>
+                    <video class="video partner cool-background" autoplay="autoplay"></video>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+  
+    <script src="~/js/connect.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+           giris();
+        });
+
+
+    </script>
+}
